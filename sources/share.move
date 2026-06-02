@@ -1,4 +1,4 @@
-// Copyright (c) Subsonic Labs, LLC
+// Copyright (c) Miso Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 /// Fixed-supply currency issuance for representing equity-like ownership stakes.

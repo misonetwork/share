@@ -30,7 +30,6 @@ let icon_url = share::share::construct_icon_url(blob_id);
 
 | Dependency | Source |
 |---|---|
-| [codec](https://github.com/sui-potatoes/app/tree/main/packages/codec) | `sui-potatoes/app` (base64url encoding) |
 | Sui Framework | Sui standard libraries |
 
 ## Build
