@@ -103,3 +103,61 @@ fun assert_valid_share_type<Share>() {
         assert!(bytes[bytes_len - suffix_len + i] == share_type[i], EInvalidShareType);
     });
 }
+
+// === Test Only ===
+
+#[test_only]
+use sui::coin_registry::{Self, MetadataCap};
+
+/// A qualifying share type: `<addr>::share::Share`. Lives in this module
+/// because the suffix gate requires module `share`, struct `Share`, and
+/// `coin_registry::new_currency<T>` must be called from T's defining module.
+#[test_only]
+public struct Share has key { id: UID }
+
+/// A NON-qualifying type in the right module with the wrong struct name —
+/// `::share::Shares` shifts the suffix window one byte and must be rejected.
+#[test_only]
+public struct Shares has key { id: UID }
+
+/// Registered `Currency<Share>` + treasury + metadata cap with the given
+/// decimals (callers pass 6 for valid setups, anything else to test the
+/// decimals gate). Metadata cap deletion is left to the caller.
+#[test_only]
+public fun new_share_currency_for_testing(
+    decimals: u8,
+    ctx: &mut TxContext,
+): (Currency<Share>, TreasuryCap<Share>, MetadataCap<Share>) {
+    let mut registry = coin_registry::create_coin_data_registry_for_testing(ctx);
+    let (initializer, treasury_cap) = coin_registry::new_currency<Share>(
+        &mut registry,
+        decimals,
+        b"SHR".to_string(),
+        b"Share".to_string(),
+        b"".to_string(),
+        b"".to_string(),
+        ctx,
+    );
+    let (currency, metadata_cap) = coin_registry::finalize_unwrap_for_testing(initializer, ctx);
+    std::unit_test::destroy(registry);
+    (currency, treasury_cap, metadata_cap)
+}
+
+#[test_only]
+public fun new_shares_currency_for_testing(
+    ctx: &mut TxContext,
+): (Currency<Shares>, TreasuryCap<Shares>, MetadataCap<Shares>) {
+    let mut registry = coin_registry::create_coin_data_registry_for_testing(ctx);
+    let (initializer, treasury_cap) = coin_registry::new_currency<Shares>(
+        &mut registry,
+        6,
+        b"SHRS".to_string(),
+        b"Shares".to_string(),
+        b"".to_string(),
+        b"".to_string(),
+        ctx,
+    );
+    let (currency, metadata_cap) = coin_registry::finalize_unwrap_for_testing(initializer, ctx);
+    std::unit_test::destroy(registry);
+    (currency, treasury_cap, metadata_cap)
+}
