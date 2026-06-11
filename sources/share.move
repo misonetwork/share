@@ -96,9 +96,10 @@ fun assert_valid_share_type<Share>() {
     let bytes_len = bytes.length();
     let suffix_len = share_type.length();
 
-    // Ensure bytes_len is at least suffix_len to avoid underflow.
-    assert!(bytes_len >= suffix_len, EInvalidShareType);
-
+    // `bytes_len >= suffix_len` always holds: every TypeName embeds a 64-char
+    // hex address, so it serializes to >= 70 bytes against a 14-byte suffix.
+    // If that ever stopped holding, the index arithmetic below aborts on
+    // underflow (Move checked arithmetic) — the gate cannot be bypassed.
     suffix_len.do!(|i| {
         assert!(bytes[bytes_len - suffix_len + i] == share_type[i], EInvalidShareType);
     });
