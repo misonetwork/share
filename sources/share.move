@@ -87,8 +87,11 @@ public fun initialize<Share>(
 
 //=== Assert Functions ===
 
-/// Asserts that the share type name ends with the expected suffix.
-fun assert_valid_share_type<Share>() {
+/// Asserts that the share type name ends with the expected suffix
+/// (`<address>::share::Share`). Public so downstream packages that hold or
+/// route share types (e.g. cap inventories) can enforce the same gate this
+/// package's `initialize` enforces, instead of mirroring it.
+public fun assert_valid_share_type<Share>() {
     let t = with_defining_ids<Share>();
     let bytes = bcs::to_bytes(&t);
     let share_type = SHARE_TYPE;
